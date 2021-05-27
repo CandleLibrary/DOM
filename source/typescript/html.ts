@@ -1,4 +1,4 @@
-import wind, { Lexer } from "@candlefw/wind";
+import wind, { Lexer } from "@candlelib/wind";
 import ll from "./ll.js";
 
 /** NODE TYPE IDENTIFIERS **/

@@ -1,4 +1,4 @@
-import html from "@candlefw/html";
+import html from "@candlelib/html";
 
 
 const result = `

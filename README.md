@@ -16,7 +16,7 @@ CandleFW HTML is a HTML parser that builds a node graph of HTML elements. It pro
 ### NPM
 
 ```bash
-npm install --save @candlefw/html
+npm install --save @candlelib/html
 ```
 ## Usage
 
@@ -25,7 +25,7 @@ npm install --save @candlefw/html
 
 
 ```javascript
-import html from "@candlefw/html"
+import html from "@candlelib/html"
 
 html(`<div><a>hello world!</a></div>`).then(root=>{
 	root.tag //=> div
@@ -60,9 +60,9 @@ html(`<div url="./src.html"></div>`).then( root=>{
 # Members
 
 ## HTMLNode
-mixin [@candlefw/ll - tree](https://github.com/galactrax/cfw-ll#README)
+mixin [@candlelib/ll - tree](https://github.com/galactrax/cfw-ll#README)
 
-`import {HTMLNode} from "@candlefw/html"`
+`import {HTMLNode} from "@candlelib/html"`
 
 ### Constructor
 
@@ -131,7 +131,7 @@ mixin [@candlefw/ll - tree](https://github.com/galactrax/cfw-ll#README)
 
 - *HTMLNode* - ***createHTMLNodeHook*** ( **tag** , **start** ) <br>&ensp;  Override this method to create a different node type for the given value of `tag`. The `start` value is the character position offset at the start of the element open tag.  
    > If overridden, returned object should support:
-   > - Linked List methods and properties provided by [@candlefw/ll](https://github.com/galactrax/) mixins.
+   > - Linked List methods and properties provided by [@candlelib/ll](https://github.com/galactrax/) mixins.
 	 > - All properties and methods in HTMLNode
 
 
@@ -156,7 +156,7 @@ mixin [@candlefw/ll - tree](https://github.com/galactrax/cfw-ll#README)
 	>
 	> e.g:
 	> ```javascript
-	> import whind from "@candlefw/whind"
+	> import whind from "@candlelib/whind"
 	> /*...
 	>   ...
 	>   ...*/
@@ -178,9 +178,9 @@ mixin [@candlefw/ll - tree](https://github.com/galactrax/cfw-ll#README)
 - *Boolean* - ***selfClosingTagHook*** ( **tag** ) <br>&ensp; Override this method and return `true` to tell the parser that the HTML tag name`tag` is self closing and to not look for a matching close tag. e.g. ```return (tag === "input") ? true : false;```
 
 ## TextNode
-mixin [@candlefw/ll - tree](https://github.com/galactrax/cfw-ll#README)
+mixin [@candlelib/ll - tree](https://github.com/galactrax/cfw-ll#README)
 
-` import {TextNode} from "@candlefw/html"`
+` import {TextNode} from "@candlelib/html"`
 
 ### Constructor
 ##### new ***TextNode*** ( [ **str** ] )

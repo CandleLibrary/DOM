@@ -1,34 +1,34 @@
 {
-  "name": "@candlefw/html",
-  "version": "0.1.1",
-  "description": "HTML Parser and DOM Polyfill",
-  "main": "./build/library/html.js",
-  "types": "./build/types/html.d.ts",
-  "type": "module",
-  "scripts": {
-    "prepublishOnly": "tsc -p ./tsconfig.json && yarn test",
-    "test": "cfw.test ./test/**",
-    "test.watch": "cfw.test -w ./test/**"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/galactrax/cfw-html.git"
-  },
-  "keywords": [
-    "HTML",
-    "Parser"
-  ],
-  "author": "Anthony Weathersby",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/galactrax/cfw-html/issues"
-  },
-  "homepage": "https://github.com/galactrax/cfw-html#readme",
-  "dependencies": {
-    "@candlefw/url": "*",
-    "@candlefw/wind": "*"
-  },
-  "devDependencies": {
-    "@candlefw/test": "*"
-  }
+    "name": "@candlelib/html",
+    "version": "0.1.1",
+    "description": "HTML Parser and DOM Polyfill",
+    "main": "./build/library/html.js",
+    "types": "./build/types/html.d.ts",
+    "type": "module",
+    "scripts": {
+        "prepublishOnly": "tsc -p ./tsconfig.json && yarn test",
+        "test": "cfw.test ./test/**",
+        "test.watch": "cfw.test -w ./test/**"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/galactrax/cfw-html.git"
+    },
+    "keywords": [
+        "HTML",
+        "Parser"
+    ],
+    "author": "Anthony Weathersby",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/galactrax/cfw-html/issues"
+    },
+    "homepage": "https://github.com/galactrax/cfw-html#readme",
+    "dependencies": {
+        "@candlelib/url": "0.1.5",
+        "@candlelib/wind": "0.4.4"
+    },
+    "devDependencies": {
+        "@candlelib/cure": "0.5.0"
+    }
 }
