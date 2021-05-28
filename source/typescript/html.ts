@@ -388,9 +388,9 @@ class HTMLNode {
      * @return     {string}  String representation of the object.
      * @public
      */
-    toString(off: number = 0): string {
+    toString(off: number = 0, off_multiplier = 1): string {
 
-        let o = offset.repeat(off);
+        let o = offset.repeat(off * off_multiplier);
 
         let str = `\n${o}<${this.tag}`,
             atr = this.attributes,
@@ -404,22 +404,22 @@ class HTMLNode {
                 str += ` ${attr.name}="${attr.value}"`;
         }
 
+
+        if (this.single || this.tag == "img")
+            return str + "/>";
+
         str += ">";
-
-        if (this.single)
-            return str;
-
-        str += this.innerToString(off + 1);
+        str += this.innerToString(off + 1, off_multiplier);
 
         return str + `${o}</${this.tag}>\n`;
     }
 
-    innerToString(off: number = 0): string {
+    innerToString(off: number = 0, off_multiplier = 1): string {
         let str = "";
         for (let node = this.fch; node;
             //@ts-ignore
             (node = this.getNextChild(node))) {
-            str += node.toString(off);
+            str += node.toString(off, off_multiplier);
         }
         return str;
     }
@@ -482,10 +482,9 @@ class HTMLNode {
      */
     private parseOpenTag(lex: Lexer, DTD: any) {
 
-        lex.PARSE_STRING = false; // Want to make sure lex creates string tokens. 
+        lex.PARSE_STRING = true;
 
-        while (!lex.END && lex.text !== ">" && lex.text !== "/") {
-
+        while (!lex.END && lex.text !== ">") {
 
             if (DTD && lex.ch == "-" && lex.pk.ch == "-") {
                 //parse comment
@@ -502,11 +501,14 @@ class HTMLNode {
                 continue;
             }
 
+            this.processInnerTextCharacterHook(lex);
+
             lex.IWS = false;
 
             let pk = lex.pk;
 
-            while (!pk.END && !(pk.ty & (pk.types.ws | pk.types.str | pk.types.nl)) && pk.ch !== "=" && pk.ch !== ">") { pk.n; }
+
+            while (!pk.END && !(pk.ty & (pk.types.ws | pk.types.nl)) && pk.ch !== "=" && pk.ch !== ">") { pk.n; }
 
             let attrib_name = pk.slice(lex).trim();
 
@@ -521,20 +523,45 @@ class HTMLNode {
             if (lex.ch == "=") {
                 let pk = lex.pk;
 
+                const sentinel = pk.ch;
+
                 let start = pk.off;
 
                 pk.IWS = false;
+                if (sentinel == "\"" || sentinel == "\'") {
+                    pk.next();
+                    while (!pk.END) {
+                        pk.next();
+                        if (pk.ch == sentinel) {
+                            pk.next();
+                            break;
+                        };
+                    };
+                } else {
+                    while (!pk.END && !((pk.ty & (pk.types.ws | pk.types.nl)) > 0) && !(["\"", "\'", "\=", "\<", "\>", "\`"].includes(pk.ch))) {
+                        pk.next();
+                    }
+                }
 
-                while (!(pk.ty & (pk.types.ws | pk.types.str | pk.types.nl)) && pk.ch !== ">") { pk.n; }
+
 
                 if (pk.off > start) {
                     out_lex = lex.n.copy();
                     out_lex.fence(pk);
                     lex.sync();
+
+                    if (out_lex.slice()[0] == "\"" || out_lex.slice()[0] == "\'") {
+                        out_lex.tl = 1;
+                        out_lex.next();
+                        out_lex.sl -= 1;
+                    }
+
                 } else {
                     //Have simple value
                     lex.sync(pk);
+
                     out_lex = lex.copy();
+
                     if (lex.pos < 0)
                         lex.throw(`Unexpected end of input. Expecting value for attribute "${attrib_name}"`);
                     else if (lex.type == lex.types.str) {
@@ -555,15 +582,10 @@ class HTMLNode {
                 this.attributes.push(attrib);
         }
 
-        //if (lex.ch == "/") // Void Nodes
-        //    lex.next();
-
-        lex.PARSE_STRING = true; // Reset lex to ignore string tokens.
-
         return false;
     }
 
-    parseRunner(lex = null, OPENED = false, IGNORE_TEXT_TILL_CLOSE_TAG = false, parent = null) {
+    parseRunner(lex: Lexer = null, OPENED = false, IGNORE_TEXT_TILL_CLOSE_TAG = false, parent = null) {
         let start = lex.pos;
         let end = lex.pos;
         let HAS_INNER_TEXT = false;
@@ -579,70 +601,93 @@ class HTMLNode {
 
         main_loop:
         while (!lex.END) {
+
+            this.processInnerTextCharacterHook(lex);
+
             switch (lex.ch) {
+
                 case "<":
-                    if (!IGNORE_TEXT_TILL_CLOSE_TAG) lex.IWS = true;
 
+                    lex.IWS = true;
                     let pk = lex.pk;
-
                     if (pk.ch == "/") {
-                        if (pk.pk.tx !== this.tag) {
-                            break main_loop;
+
+                        let { tag_name: name, parse_head } = parseTagName(pk.pk);
+
+                        if (this.tag != name) {
+                            if (IGNORE_TEXT_TILL_CLOSE_TAG) {
+                                break;
+                            }
                         }
 
                         if (HAS_INNER_TEXT) {
-                            lex.PARSE_STRING = false;
                             if (IGNORE_TEXT_TILL_CLOSE_TAG)
                                 this.createTextNode(lex, start);
                             else if ((end - start) > 0)
                                 this.createTextNode(lex, start, end);
-                            lex.PARSE_STRING = true;
                         }
 
-                        //Close tag
-                        let name = lex.sync().n.tx;
 
                         //Close tag is not the one we are looking for. We'll create a new dummy node and close the tag with it. 
-                        if (name !== this.tag) {
-                            //Create new node with the open tag 
+                        if (name != this.tag) {
+                            let par = this.par;
+                            while (par) {
+                                if (name == par.tag) {
+                                    return this.endOfElementHook();
+                                }
+                                par = par.par;
+                            }
+
                             let insert = new HTMLNode();
                             insert.tag = name;
                             //@ts-ignore
                             this.addChild(insert);
+                            lex.sync(parse_head);
+                            lex.IWS = true;
+                            lex.a(">");
+                            start = lex.pos;
+                            continue;
+                        } else {
+
+                            //Close tag
+                            lex.sync(parse_head);
+                            lex.IWS = false;
+                            lex.a(">");
+                            return this.endOfElementHook();
                         }
-
-                        lex.n;
-                        lex.IWS = false;
-                        lex.a(">");
-
-                        lex.PARSE_STRING = false;
-                        return this.endOfElementHook();
-                    }
-
-                    if (pk.ch == "!") {
-                        /* DTD - Doctype and Comment tags*/
-                        //This type of tag is dropped
-                        while (!lex.END && lex.n.ch !== ">") { };
-                        lex.a(">");
-                        lex.IWS = false;
-                        continue;
                     }
 
                     if (!IGNORE_TEXT_TILL_CLOSE_TAG) {
+
+                        if (pk.ch == "!") {
+                            /* DTD - Doctype and Comment tags*/
+                            //This type of tag is dropped
+                            while (!lex.END && lex.n.ch !== ">") { };
+                            lex.a(">");
+                            lex.IWS = false;
+                            continue;
+                        }
+
+                        //Check to see if tag name is valid
+                        //Expect tag name 
+                        let { tag_name, parse_head } = parseTagName(pk);
+
+                        if (!tag_name) {
+                            lex.IWS = false;
+                            break;
+                        }
 
                         //Open tag
                         if (!OPENED) {
                             this.DTD = false;
                             this.attributes.length = 0;
 
-                            //Expect tag name 
-                            this.tag = lex.n.tx.toLowerCase();
+                            this.tag = tag_name.toLowerCase();
 
-                            lex.PARSE_STRING = false;
+                            lex.sync(parse_head);
+                            lex.tl = 0;
 
-                            this.parseOpenTag(lex.n, false);
-
-                            lex.PARSE_STRING = true;
+                            this.parseOpenTag(lex.next(), false);
 
                             this.pos = lex.copy();
 
@@ -659,20 +704,16 @@ class HTMLNode {
 
                                 //This element is self closing and does not have a body.
                             } else {
+
                                 HAS_INNER_TEXT = IGNORE_TEXT_TILL_CLOSE_TAG = (this.ignoreTillHook(this.tag));
+
                                 OPENED = true;
                             }
 
-                            //End of Open Tag
-                            lex.a(">");
+                            lex.assert(">");
 
-
-                            if (HAS_INNER_TEXT) {
-                                //Insure that string do not lead to 
-                                lex.PARSE_STRING = false;
+                            if (HAS_INNER_TEXT)
                                 start = lex.pos;
-                            }
-
 
                             if (SELF_CLOSING) {
                                 // Tags without matching end tags.
@@ -683,16 +724,17 @@ class HTMLNode {
 
                             continue;
                         } else {
+                            // Processing any characters leading up to this point 
+                            // as a text node.
                             lex.IWS = false;
                             //Create text node;
                             if (HAS_INNER_TEXT) {
-                                lex.PARSE_STRING = false;
+
                                 if (IGNORE_TEXT_TILL_CLOSE_TAG)
                                     this.createTextNode(lex, start);
                                 else if ((end - start) > 0) {
                                     this.createTextNode(lex, start, end);
                                 }
-                                lex.PARSE_STRING = true;
                             }
 
                             //New Child node found
@@ -735,7 +777,7 @@ class HTMLNode {
                 }
             }
 
-            lex.n;
+            lex.next();
         }
 
         if (OPENED && start < lex.off) {
@@ -746,6 +788,7 @@ class HTMLNode {
         }
 
         return this;
+
     }
 
     /**
@@ -770,15 +813,34 @@ class HTMLNode {
     endOfElementHook() { return this; }
 
     selfClosingTagHook(tag) {
-        return ["input", "br", "img", "rect"].includes(tag);
+        return [
+            "area",
+            "base", "br",
+            "col", "command",
+            "embed",
+            "hr",
+            "img", "input",
+            "keygen",
+            "link",
+            "meta",
+            "param",
+            "source",
+            "track",
+            "wbr"].includes(tag);
     }
 
     ignoreTillHook(tag) {
         // Special character escaping tags.
+
+
         return ["script", "style", "pre"].includes(tag);
     }
 
     createHTMLNodeHook(tag, start) { return new HTMLNode(); }
+
+    processInnerTextCharacterHook(lex) {
+        return;
+    }
 
     processAttributeHook(name, lex) { return { IGNORE: false, name, value: lex.slice() }; }
 
@@ -867,7 +929,11 @@ ll.mixinTree(HTMLNode);
  * @memberof module:wick.core
  * @alias html
  */
-const HTMLParser = (html_string, root = null) => (root = (!root || !(root instanceof HTMLNode)) ? new HTMLNode() : root, root.parse(wind(html_string.replace(/\&lt;/g, "<").replace(/\&gt;/g, ">"))));
+const HTMLParser = (html_string, root = null) => (
+    root = (!root || !(root instanceof HTMLNode))
+        ? new HTMLNode()
+        : root, root.parse(wind(html_string.replace(/\&lt;/g, "<").replace(/\&gt;/g, ">")))
+);
 
 export { HTMLNode, HTMLParser, TextNode };
 
@@ -954,7 +1020,7 @@ HTMLParser.server = function () {
     //@ts-ignore
     HTMLNode.prototype.replaceNode = function (newNode, oldNode) {
         if (oldNode.par == this) {
-            oldNode.insertBefore(newNode);
+            ll.methods.parent_child.insertBefore.call(oldNode, newNode);
             oldNode.parent = null;
         }
 
@@ -962,10 +1028,26 @@ HTMLParser.server = function () {
 
         return newNode;
     };
+
+    //@ts-ignore
+    HTMLNode.prototype.replaceWith = function (newNode) {
+        return this.parent.replaceChild(newNode, this);
+    };
+
+    //@ts-ignore
+    HTMLNode.prototype.insertBefore = function (newNode, oldNode) {
+        if (oldNode && oldNode.par == this)
+            this.addChild(newNode, oldNode);
+        else
+            this.addChild(newNode, oldNode);
+
+    };
+
     //@ts-ignore
     HTMLNode.prototype.replaceChild = function (newNode, oldNode) {
+
         if (oldNode.par == this) {
-            oldNode.insertBefore(newNode);
+            ll.methods.parent_child.insertAfter.call(oldNode, newNode);
             oldNode.parent = null;
         }
 
@@ -973,20 +1055,24 @@ HTMLParser.server = function () {
 
         return newNode;
     };
+
     //@ts-ignore
     HTMLNode.prototype.hasChildNodes = function () {
         return !!this.fch;
     };
+
     //@ts-ignore
     HTMLNode.prototype.previousSibling = function () {
         return this.pre;
     };
+
     //@ts-ignore
     HTMLNode.prototype.nextSibling = function () {
         return this.nxt;
     };
 
     //@ts-ignore
+    /*
     HTMLNode.prototype.childNodes = function () {
         return new Proxy(this, {
             get: function (obj, prop) {
@@ -1001,6 +1087,7 @@ HTMLParser.server = function () {
             }
         });
     };
+    */
     //@ts-ignore
     HTMLNode.prototype.getStyleObject = function () {
         return {};
@@ -1024,7 +1111,9 @@ HTMLParser.server = function () {
             this.__events__.get(event).delete(func);
     };
     //@ts-ignore
-    HTMLNode.prototype.runEvent = function (event_name, event_object) {
+    HTMLNode.prototype.runEvent = HTMLNode.prototype.dispatchEvent = function (event_name, event_object) {
+
+        event_object.target = this;
 
         if (this.__events__ && this.__events__.has(event_name + ""))
             for (const funct of this.__events__.get(event_name + "").values())
@@ -1051,3 +1140,31 @@ HTMLParser.server = function () {
 };
 
 export default HTMLParser;
+/**
+ * Returns a valid tag name identifier or an empty string, 
+ * along with a Lexer position at the next non-whitespace
+ * object after the tag identifier. 
+ * @param lex - A Lexer object
+ * @returns 
+ */
+function parseTagName(lex: Lexer) {
+
+    const pk = lex.copy();
+
+    pk.IGNORE_WHITE_SPACE = false;
+
+    while (!pk.END && (pk.ty == pk.types.id || pk.tx == "-" || pk.tx == "_"))
+        pk.next();
+
+
+    const tag_name = ((pk.off > lex.off) ? pk.slice(lex) : "").toLowerCase().trim();
+
+
+    pk.IGNORE_WHITE_SPACE = true;
+
+    pk.tl = 0;
+    pk.next();
+
+    return { tag_name, parse_head: pk };
+}
+
