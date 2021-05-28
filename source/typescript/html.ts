@@ -193,6 +193,10 @@ class HTMLNode {
         return null;
     };
 
+    hasAttribute(name) {
+        return this.getAttribute(name) !== null;
+    }
+
     setAttribute(name, value) {
         let attr = this.getAttrib(name);
         if (attr)
