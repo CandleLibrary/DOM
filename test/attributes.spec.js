@@ -14,9 +14,9 @@ assert(dom.getAttribute("bare") == "((test))");
 
 //Handles wick style attributes in the form of name=\"(( value ))\" and name=((vala)(valb))
 
-const dom2 = html(`<div str="(( value ))" simple=((myvalue.value=value)) bare=((vala)(valb)) grama=phone></div>`);
+const dom2 = html(`<div str="(( value ))" simple=((myvalue.value)) bare=((vala)(valb)) grama=phone></div>`);
 
-assert(dom2.getAttribute("simple") == "((myvalue.value=value))");
+assert(dom2.getAttribute("simple") == "((myvalue.value))");
 
 assert(dom2.getAttribute("str") == "(( value ))");
 

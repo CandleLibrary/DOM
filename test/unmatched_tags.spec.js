@@ -4,9 +4,9 @@ import html from "@candlelib/html";
 const result = `
 <html>
     <head>
-        <link>
-            <body>             </body>
-        </link>
+        <div>        </div>
+
+        <body>        </body>
     </head>
 </html>
 `;
@@ -15,7 +15,7 @@ const tree = html(`
                 <!DOCTYPE html>
                 <html>
                 <head>
-                <link>
+                </div>
                 <body>
                 </html>
             `);

@@ -6,12 +6,10 @@ html.server();
 const og = html(
     `<html type="truetype">
         <head screen="true">
-            <!-- test -->
             <style>
                 a{color:red}
             </style>
         </head>
-        <script>sthis</script>
         <body>
             thisis some of my text
             <app>sdfsaf 
@@ -24,12 +22,12 @@ const og = html(
 );
 
 assert(og.tag == "html");
-assert(og.children.length == 3);
+assert(og.children.length == 2);
 assert(og.children[0].tag == "head");
-assert(og.children[1].tag == "script");
-assert(og.children[1].children.length == 1);
-assert(og.children[1].children[0] == "sthis");
-assert(og.children[2].tag == "body");
+assert(og.children[1].tag == "body");
+assert(og.children[1].children.length == 2);
+assert((og.children[1].children[0] + "").trim() == "thisis some of my text");
+
 
 
 const rendered_string = await html(
