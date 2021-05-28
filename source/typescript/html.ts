@@ -359,6 +359,28 @@ class HTMLNode {
         return (id_attrib) ? id_attrib.value : "";
     }
 
+    get childNodes() {
+        //@ts-ignore
+        for (var z = [], i = 0, node = this.fch; i++ < this.noc;)(
+            z.push(node), node = node.nxt
+        );
+        return z;
+    }
+
+    /**
+         * @return {array} Returns an array of all children.
+         */
+    get children() {
+        for (var z = [], i = 0, node = this.fch; i++ < this.noc;)(
+            z.push(node), node = node.nxt
+        );
+
+        return z.filter(e => e instanceof HTMLNode);
+    }
+
+    set children(e) {
+        /* No OP */
+    }
 
 
     /**
@@ -962,22 +984,6 @@ HTMLParser.server = function () {
     //@ts-ignore
     HTMLNode.prototype.nextSibling = function () {
         return this.nxt;
-    };
-    //@ts-ignore
-    HTMLNode.prototype.children = function () {
-        return new Proxy(this, {
-            get: function (obj, prop) {
-
-                if (!isNaN(<number>prop)) {
-                    //@ts-ignore
-                    return ll.children.call(obj).filter(e => e instanceof HTMLNode)[prop];
-                }
-
-                if (prop == "length") {
-                    return this.noc;
-                }
-            }
-        });
     };
 
     //@ts-ignore

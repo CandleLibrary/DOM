@@ -286,22 +286,6 @@ export const LinkedList = {
             }
         },
         tree: {
-            children: {
-                enumerable: true,
-                configurable: true,
-                /**
-                 * @return {array} Returns an array of all children.
-                 */
-                get: function () {
-                    for (var z = [], i = 0, node = this.fch; i++ < this.noc;)(
-                        z.push(node), node = node.nxt
-                    );
-                    return z;
-                },
-                set: function (e) {
-                    /* No OP */
-                }
-            },
             parent: {
                 enumerable: true,
                 configurable: true,
