@@ -386,6 +386,10 @@ class HTMLNode {
         /* No OP */
     }
 
+    get firstElementChild() {
+        return this.children[0];
+    }
+
 
     /**
      * Returns a string representation of the object.
@@ -879,10 +883,12 @@ class HTMLNode {
     }
 
     set innerHTML(text) {
-        this.fch = null;
 
-        if (text)
-            this.parseRunner(wind(text + ""), true, true, this.par);
+        this.fch = null;
+        const lex = wind(text + "");
+        lex.IWS = false;
+        //if (text)
+        this.parseRunner(lex, true, false, this.par);
 
         this.bubbleUpdate();
     }
