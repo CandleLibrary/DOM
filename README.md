@@ -9,7 +9,7 @@
 #
 
 
-CandleFW HTML is a HTML parser that builds a node graph of HTML elements. It provides methods for hooking into the parsing process to generate custom HTML node graphs.
+CandleLibrary HTML is a HTML parser that builds a node graph of HTML elements. It provides methods for hooking into the parsing process to generate custom HTML node graphs.
 
 ## Install
 
@@ -36,7 +36,7 @@ html(`<div><a>hello world!</a></div>`).then(root=>{
 
 ## Notes
 
-CandleFW HTML makes use of a none standard attribute to provide asynchronous HTML building. The `url` attribute can be used to fetch arbitrary data and insert that into the inner HTML of the element that has the attribute.
+CandleLibrary HTML makes use of a none standard attribute to provide asynchronous HTML building. The `url` attribute can be used to fetch arbitrary data and insert that into the inner HTML of the element that has the attribute.
 
 e.g.
 ```html
@@ -92,7 +92,7 @@ mixin [@candlelib/ll - tree](https://github.com/galactrax/cfw-ll#README)
 
 - **type** (Read-Only) - *Number* <br>&ensp;  `0` (`HTML`).
 
-- **url** - *[CandleFW URL](https://github.com/galactrax/cfw-url)* <br>&ensp; If the element tag in the orignal HTML string contained an attribute named url, then value of that attribute is applied to `url`.
+- **url** - *[CandleLibrary URL](https://github.com/galactrax/cfw-url)* <br>&ensp; If the element tag in the orignal HTML string contained an attribute named url, then value of that attribute is applied to `url`.
 
 ### Methods
 
