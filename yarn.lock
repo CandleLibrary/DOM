@@ -2,21 +2,21 @@
 # yarn lockfile v1
 
 
-"@candlefw/ll@latest":
+"@candlelib/ll@latest":
   version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@candlefw/ll/-/ll-0.1.4.tgz#95bcc790f87b8596a66e32264ab55a498d5f3a59"
+  resolved "https://registry.yarnpkg.com/@candlelib/ll/-/ll-0.1.4.tgz#95bcc790f87b8596a66e32264ab55a498d5f3a59"
   integrity sha512-3vKlkVzEORoG74MmNEOu8kttlaxVcu8xfrIIW4U/hlP6spxgp1y+c7NcbSVN+zPfMudJwMUv97bv+juypU8AHw==
 
-"@candlefw/url@latest":
+"@candlelib/url@latest":
   version "0.0.7-a"
-  resolved "https://registry.yarnpkg.com/@candlefw/url/-/url-0.0.7-a.tgz#6d7569940b8cc848b9507001f43ae148e9d0570a"
+  resolved "https://registry.yarnpkg.com/@candlelib/url/-/url-0.0.7-a.tgz#6d7569940b8cc848b9507001f43ae148e9d0570a"
   integrity sha512-wdkUx01cCcXkiRwSpq6wCl7/kpj9bbJpsN4MLT1mW5hpv4KbhoPqfH4k3XK0oDj2oDAKHRvacSMUKgpNRS7LoA==
   dependencies:
-    "@candlefw/whind" latest
+    "@candlelib/whind" latest
 
-"@candlefw/whind@latest":
+"@candlelib/whind@latest":
   version "0.3.3-a"
-  resolved "https://registry.yarnpkg.com/@candlefw/whind/-/whind-0.3.3-a.tgz#adcc9fdbcb47c9abfa0d3f7ca58478baa16803cc"
+  resolved "https://registry.yarnpkg.com/@candlelib/whind/-/whind-0.3.3-a.tgz#adcc9fdbcb47c9abfa0d3f7ca58478baa16803cc"
   integrity sha512-fuSjkSePrz8x4A/u2MDuS8MQYoh6jGuLw8DPKsQn0RotbH5prekYPTCVzFYi14z626IKdxlYnaDuCXQJQ4A/CQ==
 
 "@types/estree@0.0.39":
