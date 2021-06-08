@@ -7,12 +7,12 @@
     "type": "module",
     "scripts": {
         "prepublishOnly": "tsc -p ./tsconfig.json && yarn test",
-        "test": "cfw.test ./test/**",
-        "test.watch": "cfw.test -w ./test/**"
+        "test": "candle.cure ./test/**",
+        "test.watch": "candle.cure -w ./test/**"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/galactrax/cfw-html.git"
+        "url": "git+https://github.com/candlelibrary/html.git"
     },
     "keywords": [
         "HTML",
@@ -21,9 +21,9 @@
     "author": "Anthony Weathersby",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/galactrax/cfw-html/issues"
+        "url": "https://github.com/candlelibrary/html/issues"
     },
-    "homepage": "https://github.com/galactrax/cfw-html#readme",
+    "homepage": "https://github.com/candlelibrary/html#readme",
     "dependencies": {
         "@candlelib/url": "0.1.5",
         "@candlelib/wind": "0.4.4"
