@@ -25,8 +25,8 @@ assert(og.tag == "html");
 assert(og.children.length == 2);
 assert(og.children[0].tag == "head");
 assert(og.children[1].tag == "body");
-assert(og.children[1].children.length == 2);
-assert((og.children[1].children[0] + "").trim() == "thisis some of my text");
+assert(og.children[1].childNodes.length == 2);
+assert((og.children[1].childNodes[0] + "").trim() == "thisis some of my text");
 
 
 
