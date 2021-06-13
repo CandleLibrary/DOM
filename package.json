@@ -1,6 +1,6 @@
 {
     "name": "@candlelib/html",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "HTML Parser and DOM Polyfill",
     "main": "./build/library/html.js",
     "types": "./build/types/html.d.ts",
@@ -25,8 +25,8 @@
     },
     "homepage": "https://github.com/candlelibrary/html#readme",
     "dependencies": {
-        "@candlelib/uri": "0.1.5",
-        "@candlelib/wind": "0.4.4"
+        "@candlelib/uri": "0.2.0",
+        "@candlelib/wind": "0.5.0"
     },
     "devDependencies": {
         "@candlelib/cure": "0.5.0"
