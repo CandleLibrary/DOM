@@ -60,3 +60,6 @@ build/
 #HCG compiler backup files.
 *.hcgb*
 
+#Generated map files
+*.map
+

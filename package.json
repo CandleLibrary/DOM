@@ -14,6 +14,12 @@
         "type": "git",
         "url": "git+https://github.com/candlelibrary/html.git"
     },
+    "files": [
+        "/build",
+        "/README.md",
+        "/CHANGELOG.md",
+        "/LICENSE"
+    ],
     "keywords": [
         "HTML",
         "Parser"
