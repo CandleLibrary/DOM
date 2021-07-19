@@ -409,7 +409,10 @@ class HTMLNode {
             let attr = atr[i];
 
             if (attr.name)
-                str += ` ${attr.name}="${attr.value}"`;
+                if (attr.value)
+                    str += ` ${attr.name}="${attr.value}"`;
+                else
+                    str += ` ${attr.name} `;
         }
 
 
@@ -808,6 +811,7 @@ class HTMLNode {
      * @private
      */
     parse(lex) {
+
 
         if (typeof (lex) == "string") lex = wind(lex);
 
